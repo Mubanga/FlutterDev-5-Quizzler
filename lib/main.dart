@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'quizbrain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'quiz_brain.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(Quizzler());
 
@@ -26,20 +29,55 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  QuizBrain _QuizBrain = QuizBrain();
-  int _current_question_number = 0;
-  List<Icon> _quizzIcons = [];
-  List<String> _quizz_questions = [
-    "You can lead a cow down stairs but not up stairs.",
-    "Approximately one quarter of human bones are in the feet.",
-    "A slug's blood is green."
-  ];
-  Map<String, bool> _questions = Map();
+  List<Icon> scoreKeeper = [];
 
-  _QuizPageState() {
-    _questions[_quizz_questions[0]] = false;
-    _questions[_quizz_questions[1]] = true;
-    _questions[_quizz_questions[2]] = true;
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getCorrectAnswer();
+
+    setState(() {
+      if (quizBrain.isFinished()) {
+        Alert(
+            context: context,
+            title: "Quizz Completed",
+            desc: "Congratulations You Have Completed The Quizz",
+            image: Image.asset("images/swoosh_masked.png"),
+            buttons: [
+              DialogButton(
+                  color: Colors.black,
+                  child: Text(
+                    "Naisu",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () => Navigator.pop(context))
+            ]).show();
+        quizBrain.reset();
+        scoreKeeper.clear();
+      } else {
+        if (userPickedAnswer == correctAnswer) {
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
+      }
+
+      //TODO: Step 4 - Use IF/ELSE to check if we've reached the end of the quiz. If true, execute Part A, B, C, D.
+      //TODO: Step 4 Part A - show an alert using rFlutter_alert (remember to read the docs for the package!)
+      //HINT! Step 4 Part B is in the quiz_brain.dart
+      //TODO: Step 4 Part C - reset the questionNumber,
+      //TODO: Step 4 Part D - empty out the scoreKeeper.
+
+      //TODO: Step 5 - If we've not reached the end, ELSE do the answer checking steps below 👇
+    });
   }
 
   @override
@@ -54,8 +92,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                _QuizBrain.getQuizQuestion().question,
-                //   _quizz_questions[_current_question_number],
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -79,23 +116,8 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  IconData iconToAdd;
-                  Color colorToAdd;
-                  if (_QuizBrain.getQuizQuestion().isCorrect == true) {
-                    iconToAdd = Icons.check;
-                    colorToAdd = Colors.green;
-                  } else {
-                    iconToAdd = Icons.close;
-                    colorToAdd = Colors.red;
-                  }
-                  _quizzIcons.add(Icon(
-                    iconToAdd,
-                    color: colorToAdd,
-                  ));
-                  //  _current_question_number++;
-                  //             _current_question_number = _current_question_number % 3;
-                });
+                //The user picked true.
+                checkAnswer(true);
               },
             ),
           ),
@@ -113,36 +135,19 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  IconData iconToAdd;
-                  Color colorToAdd;
-                  if (_QuizBrain.getQuizQuestion().isCorrect == false) {
-                    iconToAdd = Icons.check;
-                    colorToAdd = Colors.green;
-                  } else {
-                    iconToAdd = Icons.close;
-                    colorToAdd = Colors.red;
-                  }
-                  _quizzIcons.add(Icon(
-                    iconToAdd,
-                    color: colorToAdd,
-                  ));
-                  //    _current_question_number++;
-                  //     _current_question_number = _current_question_number % 3;
-                });
+                //The user picked false.
+                checkAnswer(false);
               },
             ),
           ),
         ),
         Row(
-          children: _quizzIcons,
+          children: scoreKeeper,
         )
       ],
     );
   }
 }
-
-//TODO: Before The Coding Challenge
 
 /*
 question1: 'You can lead a cow down stairs but not up stairs.', false,

@@ -1,17 +1,9 @@
 class Question {
-  String _question;
-  bool _answers;
+  String questionText;
+  bool questionAnswer;
 
-  Question(String question, bool isTrue) {
-    _question = question;
-    _answers = isTrue;
-  }
-
-  String get question {
-    return _question;
-  }
-
-  bool get isCorrect {
-    return _answers;
+  Question(String q, bool a) {
+    questionText = q;
+    questionAnswer = a;
   }
 }
